@@ -38,22 +38,33 @@ def handleName(name, methodType, rowStart):
     filePath1 = './result/' + name + '/*.jpg'
     filePath2 = './result/' + name + '/*.JPG'
     dataPath = './result/' + name + '/' + name + '.xlsx'
-    aListFile = [f for f_ in [glob.glob(e) for e in [filePath1, filePath2]] for f in f_] #list picture file name
+    aListFile = [f for f_ in [glob.glob(e) for e in [filePath1]] for f in f_] #list picture file name
 
     aListOutput = [] #using to trace log
 
     aListFileName = []
+    aListDuplicate = []
+    aRawName = []
     for item in aListFile:
-        fileName = item[len('./result/' + name ) + 1 :]
+        fileName = item[len('./result/' + name) + 1:]
         o = PictureFileName(fileName.encode('utf-8').decode('utf-8'), methodType)
         o.filePath = './result/' + name + '/' + o.name
         aListFileName.append(o)
 
         # This code use for checking data analyze!!!
-    #     try:
-    #         print(item, ' ', o.no_accent_name, o.date)
-    #     except AttributeError:
-    #         print('oop!')
+        # try:
+        #     print(item, ' ', o.no_accent_name, o.date)
+        # except AttributeError:
+        #     print('oop!')
+
+    for o in aListFileName:
+        if o.no_accent_name:
+            if o.no_accent_name not in aRawName:
+                aRawName.append(o.no_accent_name)
+            else:
+                aListDuplicate.append(o.no_accent_name)
+    # for i in aListFileName:
+    #     print(i.no_accent_name)
     # return
 
     wb = load_workbook(dataPath)
@@ -66,7 +77,8 @@ def handleName(name, methodType, rowStart):
     max_row = sheet.max_row
     # get max column count
     max_column = sheet.max_column
-
+    return
+    # check column index.
     for i in range(rowStart, max_row + 1):
         if sheet.cell(row=i, column=1) and sheet.cell(row=i, column=1).value and isinstance(
                 sheet.cell(row=i, column=1).value, int) and sheet.cell(row=i, column=1).value >= 1:
@@ -74,41 +86,44 @@ def handleName(name, methodType, rowStart):
             cell_stt = sheet.cell(row=i, column=1).value
             cell_name = sheet.cell(row=i, column=2).value
             if cell_name:
-                if sheet.cell(row=i, column=3).value:
-                    cell_namSinh = sheet.cell(row=i, column=3).value
-                else:
+                if sheet.cell(row=i, column=4).value:
                     cell_namSinh = sheet.cell(row=i, column=4).value
-                cell_cmnd = sheet.cell(row=i, column=6).value
-                cell_tinh = sheet.cell(row=i, column=5).value
+                else:
+                    cell_namSinh = sheet.cell(row=i, column=5).value
+                cell_cmnd = sheet.cell(row=i, column=7).value
+                cell_tinh = sheet.cell(row=i, column=6).value
         else:
             continue
         # print(cell_name)
         for o in aListFileName:
-            try:
-                # print(cell_name)
-                if o.STT:
-                    if o.STT == cell_stt:
-                        handleChangeName()
-                else:
-                    if no_vietnamese(cell_name).strip() in o.no_accent_name.strip():
-                        if o.date:
-                            try:
-                                if str(cell_namSinh.year) in o.date or o.date == 'Missing':
-                                    handleChangeName()
-                            except AttributeError:
-                                if o.lastFourC in cell_namSinh or o.date == 'Missing':
-                                    handleChangeName()
-                        else:
+            if o.no_accent_name:
+                try:
+                    # print(cell_name)
+                    if o.STT:
+                        if o.STT == cell_stt:
                             handleChangeName()
-            except ValueError:
-                pass
-                text = 'Error: file name can not analyze: ' + o.filePath
-                print(text)
-                aListOutput.append(text)
-            except AttributeError:
-                print('check')
-            except TypeError:
-                print(o.name)
+                    else:
+                        if no_vietnamese(cell_name).strip() == o.no_accent_name.strip():
+                            # handleChangeName()
+                            if o.date:
+                                try:
+                                    if str(cell_namSinh.year) in o.date or o.date == 'Missing':
+                                        handleChangeName()
+                                except AttributeError:
+                                    if o.lastFourC in cell_namSinh or o.date == 'Missing':
+                                        handleChangeName()
+                            else:
+                                handleChangeName()
+                except ValueError:
+                    pass
+                    text = 'Error: file name can not analyze: ' + o.filePath
+                    print(text)
+                    aListOutput.append(text)
+                except AttributeError:
+                    print('check')
+                except TypeError:
+                    print(o.name)
+
 
     writeListToTextFile(aListOutput, './result/' + name + '/log.txt')
 
@@ -142,6 +157,8 @@ def writeListToTextFile(list, filePath, mode='a'):
 # handleName('TrungTamYTeHuyenChonThanh', 2, 9)
 # handleName('TrungTamYTeHuyenPhuRieng', 1, 8)
 # handleName('TruongCaoDangYTeBinhPhuoc', 2, 9)
-handleName('TrungTamYTeHuyenBuDang', 2, 12)
 
-
+# handleName('BuDang', 2, 12)
+# handleName('BuDop', 2, 8)
+# handleName('BinhPhuoc', 3, 8)
+handleName('TrungTam', 2, 13)

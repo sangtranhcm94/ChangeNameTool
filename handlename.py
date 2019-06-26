@@ -59,8 +59,31 @@ class PictureFileName:
                 return
             self.date = self.name[firstDateIndex:].lower().split('.jpg')[0].strip()
             self.lastFourC = self.date.split(' ')[0].split(',')[0][-4:]
+
+        # method excluded stt. get name and year of born.
+        if self.method == 3:
+            for e in self.name:
+                if e.lower() in ' abcdefghijklmnopqrstuvwxyz':
+                    firstNameCharacter = self.name.index(e)
+                    newName = self.name[firstNameCharacter:].strip()
+                    break
+            firstDateIndex = -1
+            for e in newName:
+                if e in '0123456789':
+                    firstDateIndex = newName.index(e)
+                    self.no_accent_name = no_vietnamese(newName[:firstDateIndex].strip()).split('sn')[0]
+                    break
+            if firstDateIndex < 0:
+                self.no_accent_name = no_vietnamese(newName).split('jpg')[0].strip().split('sn')[0]
+                self.date = 'Missing'
+                self.lastFourC = 'Missing'
+                return
+            self.date = newName[firstDateIndex:].lower().split('.jpg')[0].strip()
+            self.lastFourC = self.date.split(' ')[0].split(',')[0][-4:]
+
         if self.STT:
             self.STT = int(self.STT)
+
 
 def no_accent_vietnamese(s):
     # s = s.encode('utf-8').decode('utf-8')
