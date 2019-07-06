@@ -1,12 +1,14 @@
 import re
+from funcName import handleName
+
 
 
 class PictureFileName:
-    def __init__(self, sName, methodGetName):
+    def __init__(self, item, sName, methodGetName, excludeFirstC):
         self.method = methodGetName
         self.name = sName
-        self.nameNoAccent = no_vietnamese(sName)
         self.STT = False
+        self.item = item
         # this method using when picture file has index.
         if self.method == 0:
             t = ''
@@ -81,9 +83,18 @@ class PictureFileName:
             self.date = newName[firstDateIndex:].lower().split('.jpg')[0].strip()
             self.lastFourC = self.date.split(' ')[0].split(',')[0][-4:]
 
-        if self.STT:
-            self.STT = int(self.STT)
-
+        if self.method == 4:
+            aRaw = handleName(self.name, excludeFirstC)
+            self.STT = aRaw[0]
+            self.date = aRaw[2]
+            self.no_accent_name = no_vietnamese(aRaw[1])
+            self.raw_name = aRaw[1]
+            # print(aRaw[1])
+        try:
+            if self.STT:
+                self.STT = int(self.STT)
+        except ValueError:
+            self.STT = 0
 
 def no_accent_vietnamese(s):
     # s = s.encode('utf-8').decode('utf-8')
